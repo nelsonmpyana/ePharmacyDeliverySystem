@@ -1,16 +1,32 @@
 package com.digital.epharmacy.entity.User;
-/*
- * Author: Nicole Hawthorne
- * Desc: ContactInformation entity composed of UserProfile
- *       and Pharmacy entity that stores user and pharmacy contact information
- * Date: 03/07/2020
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
+import javax.validation.constraints.NotNull;
+import java.util.Objects;
+
+
+/*Author: Matthew Pearce
+ *Desc: Added the entity mapping and assigned the primary key also added no null values each entity
+ and changed default constructor to protected
+ Also created the class for all userProfile composite keys
+ * Date: 26/10/2020
  * */
 //main class
+//@IdClass(UserProfileAndPharmacyId.class)
+@Entity
 public class ContactInformation {
     //naming entity attributes and assigning their variable values
-    private int primaryNumber,secondaryNumber;
-    private String userId;
-    private String pharmacyId;
+    @Id
+    private String userId , pharmacyId;
+    @NotNull(message = "Primary number is required")
+    private int primaryNumber;
+    @NotNull(message = "Secondary number is required")
+    private int secondaryNumber;
+
+    protected ContactInformation(){}
     
     //constructor for Builder class
     private ContactInformation (Builder builder){
@@ -88,5 +104,18 @@ public class ContactInformation {
         public ContactInformation build(){
             return new ContactInformation(this);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ContactInformation that = (ContactInformation) o;
+        return Objects.equals(userId, that.userId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId);
     }
 }

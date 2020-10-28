@@ -1,4 +1,9 @@
 package com.digital.epharmacy.entity.Driver;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import java.util.Objects;
+
 /*
     Author: Chad
 <<<<<<< HEAD
@@ -7,12 +12,35 @@ package com.digital.epharmacy.entity.Driver;
     Desc: DriverCar stores driverId using composition with Driver
 >>>>>>> origin/groupCollaboration
     Date: 4 July 2020
+
+    Modified: added noBlank validation and created a composite relation between driver profile and car and hash set
+    Date: 27/10/20
  */
+/**Author: Nicole Hawthorne
+ *Desc: Added the entity mapping and assigned the primary key
+ and changed default constructor to protected
+ * Date: 25/10/2020
+ * */
+
+@Entity
+@Table(name = "car")
+
 public class DriverCar {
+
     // all the attributes of entity
+    @Id
+    @Column(name = "id")
     private String driverId;
+    @NotBlank(message = "Car Registration is required")
     private String carRegistration;
-    private String carColour, carName, carModel;
+    @NotBlank(message = "Car Colour is required")
+    private String carColour;
+    @NotBlank(message = "Car name is required")
+    private String carName;
+    @NotBlank(message = "Car Model is required")
+    private String carModel;
+
+    protected DriverCar (){}
 
     // builder pattern method constructor
     private DriverCar(Builder builder){
@@ -102,5 +130,18 @@ public class DriverCar {
         public DriverCar builder(){
             return new DriverCar(this);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DriverCar that = (DriverCar) o;
+        return driverId.equals(that.driverId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(driverId);
     }
 }

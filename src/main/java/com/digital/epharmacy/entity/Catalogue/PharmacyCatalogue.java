@@ -1,16 +1,30 @@
 package com.digital.epharmacy.entity.Catalogue;
 
+import com.digital.epharmacy.entity.Pharmacy.Pharmacy;
+
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+
 /*
 Name: Nelson Mpyana
  * Desc: Pharmacy Catalogue Entity composed of Pharmacy
  * Date: 04/07/2020
  */
+
+
 public class PharmacyCatalogue {
     //naming entity attributes and assigning their variable values
     //This class has the Foreign key
+    @Id
     private String pharmacyId;
-    private String catalogueName, catalogueDescription;
-
+    @NotNull(message = "Catalogue Name is required")
+    private String catalogueName;
+    @NotNull(message = "Catalogue Description is required")
+    private String catalogueDescription;
+    @ManyToOne
+    @JoinColumn(name = "pharmacyId")
+    private Pharmacy pharmacy;
+    protected PharmacyCatalogue(){}
     //constructor for Builder class
     private PharmacyCatalogue(Builder builder) {
         this.pharmacyId = builder.pharmacyId;
