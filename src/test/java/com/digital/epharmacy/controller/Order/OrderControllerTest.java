@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,19 +35,24 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class OrderControllerTest {
 
-    //as per business rule, we need items to place order
-    private static CatalogueItem catalogueItem = CatalogueItemFactory.createCatalogueItem(36, "Mayogel",
-            "oral health", 36, 200);
+    private static String USERNAME = "UserProfile";
+    private static String USER_PASSWORD = "54321";
+    private static String ADMIN_USERNAME = "Admin";
+    private static String ADMIN_PASSWORD = "12345";
 
-    private  static List<CatalogueItem> items = Stream.of(catalogueItem).collect(Collectors.toList());
+    //as per business rule, we need items on the db to place order
+    private static CatalogueItem catalogueItem = CatalogueItemFactory.createCatalogueItem(38, "Mayogel",
+            "oral health", 37, 200);
+
+    private  static Set<CatalogueItem> items = Stream.of(catalogueItem).collect(Collectors.toSet());
 
 
 
     private static UserProfile user = UserProfileFactory
-            .createUserProfile("Ayabulela","Mahlathini", "male");
+            .createUserProfile("Chris","Mahlathini", "male");
 
     private static Order order = OrderFactory
-            .createOrder(user.getUserId(), items, "yoco");
+            .createOrder(user, items, "yoco");
 
 
     @Autowired
@@ -60,12 +66,14 @@ public class OrderControllerTest {
         String url = baseURL + "create";
         System.out.println("URL:" + url);
         System.out.println("POST data: " + order);
-        ResponseEntity<Order> postResponse = restTemplate.postForEntity(url, order, Order.class);
+        ResponseEntity<Order> postResponse = restTemplate
+                .withBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .postForEntity(url, order, Order.class);
         assertNotNull(postResponse);
         assertNotNull(postResponse.getBody());
-        order = postResponse.getBody();
-        System.out.println("Saved data:" + order);
-        assertEquals(order.getOrderNumber(), postResponse.getBody().getOrderNumber());
+        Order createdOrder = postResponse.getBody();
+        System.out.println("Saved data:" + createdOrder);
+        assertEquals(order.getOrderTotal(), createdOrder.getOrderTotal());
 
     }
 
@@ -74,7 +82,9 @@ public class OrderControllerTest {
     public void b_read() {
         String url = baseURL + "read/" + order.getOrderNumber();
         System.out.println("URL: " + url);
-        ResponseEntity<Order> response = restTemplate.getForEntity(url, Order.class);
+        ResponseEntity<Order> response = restTemplate
+                .withBasicAuth(USERNAME, USER_PASSWORD)
+                .getForEntity(url, Order.class);
         assertEquals(order.getOrderNumber(), response.getBody().getOrderNumber());
     }
 
@@ -85,7 +95,9 @@ public class OrderControllerTest {
         String url = baseURL + "update";
         System.out.println("URL: " + url);
         System.out.println("POST data: " + updatedOrder);
-        ResponseEntity<Order> response = restTemplate.postForEntity(url, updatedOrder, Order.class);
+        ResponseEntity<Order> response = restTemplate
+                .withBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .postForEntity(url, updatedOrder, Order.class);
         System.out.println("Response: " + response.getBody());
         assertEquals(order.getOrderNumber(), response.getBody().getOrderNumber());
     }
@@ -95,7 +107,7 @@ public class OrderControllerTest {
     public void h_delete() {
         String url = baseURL + "delete/" + order.getOrderNumber();
         System.out.println("URL: " + url);
-        restTemplate.delete(url);
+        restTemplate.withBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD).delete(url);
     }
 
     @org.junit.jupiter.api.Order(4)
@@ -105,7 +117,9 @@ public class OrderControllerTest {
         System.out.println("URL: " + url);
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(null,headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET,entity,String.class);
+        ResponseEntity<String> response = restTemplate
+                .withBasicAuth(USERNAME, USER_PASSWORD)
+                .exchange(url, HttpMethod.GET,entity,String.class);
         System.out.println(response);
         System.out.println(response.getBody());
     }
@@ -118,7 +132,9 @@ public class OrderControllerTest {
         System.out.println("URL: " + url);
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(null,headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET,entity,String.class);
+        ResponseEntity<String> response = restTemplate
+                .withBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
+                .exchange(url, HttpMethod.GET,entity,String.class);
         System.out.println(response);
         System.out.println(response.getBody());
     }
@@ -128,7 +144,9 @@ public class OrderControllerTest {
     public void f_trackOrderStatus() {
         String url = baseURL + "read/" + order.getOrderNumber();
         System.out.println("URL: " + url);
-        ResponseEntity<Order> response = restTemplate.getForEntity(url, Order.class);
+        ResponseEntity<Order> response = restTemplate
+                .withBasicAuth(USERNAME, USER_PASSWORD)
+                .getForEntity(url, Order.class);
         assertEquals("completed", response.getBody().getOrderStatus());
     }
 
@@ -139,12 +157,14 @@ public class OrderControllerTest {
         String url = baseURL + "pastOrders/"+ user
                 .getUserId();
 
-        OrderFactory.createOrder(user.getUserId(), items,"yoco");
+        OrderFactory.createOrder(user, items,"yoco");
 
         System.out.println("URL: " + url);
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(null,headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET,entity,String.class);
+        ResponseEntity<String> response = restTemplate
+                .withBasicAuth(USERNAME, USER_PASSWORD)
+                .exchange(url, HttpMethod.GET,entity,String.class);
         System.out.println(response);
         System.out.println(response.getBody());
     }

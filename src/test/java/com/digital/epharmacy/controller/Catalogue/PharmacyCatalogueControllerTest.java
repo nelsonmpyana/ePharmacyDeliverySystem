@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PharmacyCatalogueControllerTest {
 
     PharmacyCatalogue pharmacyCat = PharmacyCatalogueFactory.createPharmacyCatalogue(
-            "Random", "Beauty", "Facial");
+            "Beauty", "Facial");
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -43,21 +43,21 @@ class PharmacyCatalogueControllerTest {
         System.out.println("URL: " + url);
         System.out.println("POST Data: " + pharmacyCat);
 
-        ResponseEntity<PharmacyCatalogue> response = restTemplate.postForEntity(url, pharmacyCat, PharmacyCatalogue.class);
+        ResponseEntity<PharmacyCatalogue> response = restTemplate.withBasicAuth(SECURITY_USERNAME, SECURITY_PASSWORD).postForEntity(url, pharmacyCat, PharmacyCatalogue.class);
 
         assertNotNull(response);
         assertNotNull(response.getBody());
         pharmacyCat = response.getBody();
         System.out.println("Saved Data: " + pharmacyCat);
-        assertEquals(pharmacyCat.getPharmacyId(), response.getBody().getPharmacyId());
+        assertEquals(pharmacyCat.getCatalogueId(), response.getBody().getCatalogueId());
     }
     @Order(2)
     @Test
     void b_readByPharmacyID() {
-        String url = baseURL + "/id/" + pharmacyCat.getPharmacyId();
+        String url = baseURL + "/id/" + pharmacyCat.getCatalogueId();
         System.out.println("URL: " + url);
-        ResponseEntity<PharmacyCatalogue> response = restTemplate.getForEntity(url, PharmacyCatalogue.class);
-        assertEquals(pharmacyCat.getPharmacyId(), response.getBody().getPharmacyId());
+        ResponseEntity<PharmacyCatalogue> response = restTemplate.withBasicAuth(SECURITY_USERNAME, SECURITY_PASSWORD).getForEntity(url, PharmacyCatalogue.class);
+        assertEquals(pharmacyCat.getCatalogueId(), response.getBody().getCatalogueId());
     }
     @Order(3)
     @Test
@@ -78,11 +78,11 @@ class PharmacyCatalogueControllerTest {
                 .setCatalogueName( " Self-Medication "
                 )
                 .build();
-        String url = baseURL + "/update/" + pharmacyCat.getPharmacyId();
+        String url = baseURL + "/update/" + pharmacyCat.getCatalogueId();
 
         System.out.println("URL: " + url);
         System.out.println("POST Data: " + pharmacyUpdate);
-        ResponseEntity<PharmacyCatalogue> response = restTemplate.postForEntity(url, pharmacyUpdate, PharmacyCatalogue.class);
+        ResponseEntity<PharmacyCatalogue> response = restTemplate.withBasicAuth(SECURITY_USERNAME, SECURITY_PASSWORD).postForEntity(url, pharmacyUpdate, PharmacyCatalogue.class);
 
         pharmacyCat = response.getBody();
 
@@ -96,16 +96,16 @@ class PharmacyCatalogueControllerTest {
         System.out.println("URL: " + url);
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> response = restTemplate.withBasicAuth(SECURITY_USERNAME, SECURITY_PASSWORD).exchange(url, HttpMethod.GET, entity, String.class);
         System.out.println(response);
         System.out.println(response.getBody());
     }
     @Order(6)
     @Test
     void delete() {
-        String url = baseURL + "/delete/" + pharmacyCat.getPharmacyId();
+        String url = baseURL + "/delete/" + pharmacyCat.getCatalogueId();
         System.out.println("URL: " + url);
-        restTemplate.delete(url);
+        restTemplate.withBasicAuth(SECURITY_USERNAME, SECURITY_PASSWORD).delete(url);
     }
 
 

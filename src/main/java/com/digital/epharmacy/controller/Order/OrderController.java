@@ -29,7 +29,7 @@ public class OrderController {
     public Order create(@RequestBody Order order){
 
         Order newOrder = OrderFactory
-                .createOrder(order.getUserID(), order.getItems(), order.getPaymentType());
+                .createOrder(order.getUser(), order.getItems(), order.getPaymentType());
         return orderService.create(newOrder);
     }
 
@@ -44,8 +44,8 @@ public class OrderController {
     }
 
     @DeleteMapping("/delete/{userID}")
-    public boolean delete(@PathVariable String userID) {
-        return orderService.delete(userID);
+    public boolean delete(@PathVariable String orderID) {
+        return orderService.delete(orderID);
     }
 
     @GetMapping("/all")
